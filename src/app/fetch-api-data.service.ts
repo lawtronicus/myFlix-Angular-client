@@ -47,7 +47,7 @@ interface User {
 }
 
 //Define movie interface
-interface Movie {
+export interface Movie {
   _id: string;
   title: string;
   description: string;

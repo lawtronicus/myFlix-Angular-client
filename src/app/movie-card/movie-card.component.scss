@@ -1,0 +1,59 @@
+:host {
+  display: flex;
+  justify-content: center;
+  @media (min-width: 1200px) {
+    width: 80%;
+  }
+
+  @media (min-width: 900px) and (max-width: 1199px) {
+    width: 90%;
+  }
+
+  @media (min-width: 600px) and (max-width: 899px) {
+    width: 95%;
+  }
+
+  @media (max-width: 599px) {
+    width: 100%;
+  }
+}
+
+.movie-card-container {
+  display: grid;
+  gap: 2rem;
+  padding: 2rem;
+
+  @media (min-width: 1200px) {
+    grid-template-columns: repeat(5, 1fr); /* 4 columns for large screens */
+  }
+
+  @media (min-width: 900px) and (max-width: 1199px) {
+    grid-template-columns: repeat(3, 1fr); /* 3 columns for medium screens */
+  }
+
+  @media (min-width: 600px) and (max-width: 899px) {
+    grid-template-columns: repeat(2, 1fr); /* 2 columns for small screens */
+  }
+
+  @media (max-width: 599px) {
+    grid-template-columns: 2fr; /* 1 column for mobile screens */
+  }
+
+  mat-card {
+    max-width: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  img {
+    width: 100%; // Ensure image takes full width of the card
+    height: auto; // Adjust height proportionally
+  }
+
+  mat-card-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+}

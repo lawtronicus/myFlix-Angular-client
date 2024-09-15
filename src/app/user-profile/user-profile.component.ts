@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ApiService, EditUserData } from '../fetch-api-data.service';
+import { isPlatformBrowser } from '@angular/common';
 
 @Component({
   selector: 'user-profile',
@@ -20,7 +21,8 @@ export class UserProfileComponent implements OnInit {
 
   constructor(
     private fetchApiData: ApiService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit(): void {

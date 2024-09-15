@@ -25,7 +25,6 @@ export class GenreComponent {
 
   getGenreByMovieTitle(): void {
     const title = this.data.title;
-    console.log('Title from route:', title);
 
     if (title) {
       this.fetchApiData
@@ -34,7 +33,6 @@ export class GenreComponent {
           if (resp && resp.genres && resp.genres.length > 0) {
             this.genre = resp.genres[0];
           }
-          console.log('Genre:', this.genre);
         });
     }
   }

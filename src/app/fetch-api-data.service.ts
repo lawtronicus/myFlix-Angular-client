@@ -143,7 +143,6 @@ export class ApiService {
   public userRegistration(
     userDetails: UserDetails
   ): Observable<UserRegistrationResponse> {
-    console.log(userDetails);
     return this.http
       .post<UserRegistrationResponse>(apiUrl + 'users', userDetails)
       .pipe(
@@ -173,7 +172,6 @@ export class ApiService {
     if (storedUser) {
       const user = JSON.parse(storedUser); // Parse the string back into an object
       const userId = user._id; // Access the _id property
-      console.log('User ID:', userId); // Now userId will be the actual ID
 
       // Now make the HTTP request inside the `if` block using the `userId`
       return this.http
@@ -208,8 +206,6 @@ export class ApiService {
 
   //Edit user
   public editUser(userId: string, userData: EditUserData): Observable<User> {
-    console.log(userId);
-    console.log(userData);
     const token = localStorage.getItem('token');
     return this.http
       .put<User>(apiUrl + 'users/' + userId, userData, {

@@ -64,14 +64,6 @@ export class MovieCardComponent {
       (user: User) => {
         // Since user.favorite_movies is already an array of IDs, we don't need to map or extract anything further.
         this.favoriteMovies = user.favorite_movies;
-
-        // Log the updated favorite movies (which should be an array of IDs)
-
-        if (this.favoriteMovies.length === 0) {
-          console.warn('No favorite movies for the user.');
-        } else {
-          console.log('Favorite movies fetched successfully.');
-        }
       },
       (error) => {
         console.error('Error fetching user data:', error); // Log if there's an issue fetching the user
@@ -110,7 +102,6 @@ export class MovieCardComponent {
         }
       );
     } else {
-      console.log('Adding the movie ', movie.title, ' to favorites');
       // If it's not a favorite, add it using the movie's title
       this.fetchApiData.addFavoriteMovie(movie.title).subscribe(
         (response) => {

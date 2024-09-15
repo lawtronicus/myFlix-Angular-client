@@ -24,7 +24,6 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "baseHref": "/myFlix-Angular-client/",
             "outputPath": "dist/my-flix-angular-client",
             "index": "src/index.html",
             "browser": "src/main.ts",
@@ -38,12 +37,7 @@
               }
             ],
             "styles": ["src/styles.scss"],
-            "scripts": [],
-            "server": "src/main.server.ts",
-            "prerender": true,
-            "ssr": {
-              "entry": "server.ts"
-            }
+            "scripts": []
           },
           "configurations": {
             "production": {

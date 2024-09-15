@@ -21,12 +21,10 @@ export class DirectorComponent {
 
   getDirector(): void {
     const director = this.data.directorName;
-    console.log('Director from route:', director);
 
     if (director) {
       this.fetchApiData.getDirector(director).subscribe((resp: Director) => {
         this.director = resp;
-        console.log(this.director);
       });
     }
   }

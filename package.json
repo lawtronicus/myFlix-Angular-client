@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build:prod": "ng build --prod --base-href=/myFlix-Angular-client/ && cp dist/my-flix-angular-client/index.html dist/my-flix-angular-client/404.html",
+    "build:prod": "ng build --configuration=production --base-href=/myFlix-Angular-client/ && cp dist/my-flix-angular-client/index.html dist/my-flix-angular-client/404.html",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:myFlix-Angular-client": "node dist/my-flix-angular-client/server/server.mjs"

@@ -11,12 +11,12 @@ import { Observable, throwError } from 'rxjs';
 const apiUrl = 'https://my-flix-application-66e35a87937e.herokuapp.com/';
 
 //Define interfaces for the user registration
-interface UserDetails {
+export interface UserDetails {
   username: string;
   password: string;
   email: string;
   dob: string;
-  // Add other fields as needed
+  favorite_movies: string[];
 }
 
 interface UserRegistrationResponse {
@@ -36,13 +36,13 @@ interface DeleteUserResponse {
 }
 
 //Define interface for getUser
-interface User {
+export interface User {
   _id: string; // MongoDB ID
   username: string; // Username of the user
   password: string; // Hashed password
   email: string; // User's email address
-  dob: string; // Date of birth as an ISO 8601 string
-  favorite_movies: Movie[]; // Array of favorite movie IDs
+  dob: Date; // Date of birth as an ISO 8601 string
+  favorite_movies: string[]; // Array of favorite movie IDs
   __v: number; // Version key set by Mongoose
 }
 
@@ -60,14 +60,14 @@ export interface Movie {
 }
 
 //Define Genre Interface
-interface Genre {
+export interface Genre {
   _id: string;
   name: string;
   description: string;
 }
 
 //Define Director Interface
-interface Director {
+export interface Director {
   _id: string;
   name: string;
   bio: string;
@@ -96,23 +96,17 @@ interface UserLoginResponse {
 }
 
 //Define interface for EditUserData
-interface EditUserData {
+export interface EditUserData {
   username: string;
   password: string;
   email: string;
   dob: string; // ISO 8601 formatted date string
 }
 
-//Define getDirectors response
-interface MovieDirectorResponse {
-  title: string;
-  directors: Director[];
-}
-
 //Movie Genres Response Interface
-interface MovieGenreResponse {
+export interface MovieGenreResponse {
   title: string;
-  genre: Genre[];
+  genres: Genre[];
 }
 
 //Movie writers Response interface
@@ -174,15 +168,26 @@ export class ApiService {
   // Making the api call to get the user details
   public getUser(): Observable<User> {
     const token = localStorage.getItem('token');
-    const user = localStorage.getItem('user'); // Retrieve the username from local storage
+    const storedUser = localStorage.getItem('user'); // Retrieve the username from local storage
 
-    return this.http
-      .get<User>(apiUrl + 'users/' + user, {
-        headers: new HttpHeaders({
-          Authorization: 'Bearer ' + token, // Include the token in the Authorization header
-        }),
-      })
-      .pipe(catchError(this.handleError));
+    if (storedUser) {
+      const user = JSON.parse(storedUser); // Parse the string back into an object
+      const userId = user._id; // Access the _id property
+      console.log('User ID:', userId); // Now userId will be the actual ID
+
+      // Now make the HTTP request inside the `if` block using the `userId`
+      return this.http
+        .get<User>(apiUrl + 'users/' + userId, {
+          headers: new HttpHeaders({
+            Authorization: 'Bearer ' + token, // Include the token in the Authorization header
+          }),
+        })
+        .pipe(catchError(this.handleError));
+    } else {
+      // Handle the case where no user is found in localStorage (perhaps throw an error or return an empty observable)
+      console.error('No user found in localStorage.');
+      return throwError(() => new Error('No user found in localStorage.'));
+    }
   }
 
   // Making the api call for the user login endpoint
@@ -203,6 +208,8 @@ export class ApiService {
 
   //Edit user
   public editUser(userId: string, userData: EditUserData): Observable<User> {
+    console.log(userId);
+    console.log(userData);
     const token = localStorage.getItem('token');
     return this.http
       .put<User>(apiUrl + 'users/' + userId, userData, {
@@ -214,31 +221,47 @@ export class ApiService {
       .pipe(catchError(this.handleError));
   }
 
-  // Add movie to favorites
   public addFavoriteMovie(movieTitle: string): Observable<User> {
     const token = localStorage.getItem('token');
-    const user = localStorage.getItem('user'); // Retrieve the username from local storage
+    const storedUser = localStorage.getItem('user'); // Retrieve the user object from localStorage
 
-    return this.http
-      .put<User>(apiUrl + `users/${user}/${movieTitle}`, null, {
-        headers: new HttpHeaders({
-          Authorization: 'Bearer ' + token, // Include the token in the Authorization header
-        }),
-      })
-      .pipe(catchError(this.handleError));
+    if (storedUser) {
+      const user = JSON.parse(storedUser); // Parse the user object
+      const userId = user._id; // Extract the user _id
+
+      return this.http
+        .put<User>(`${apiUrl}users/${userId}/${movieTitle}`, null, {
+          headers: new HttpHeaders({
+            Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+          }),
+        })
+        .pipe(catchError(this.handleError));
+    } else {
+      // Handle the case where the user is not available in localStorage
+      throw new Error('User not found in localStorage');
+    }
   }
-  // Delete movie to favorites
+
+  // Delete movie from favorites
   public deleteFavoriteMovie(movieTitle: string): Observable<User> {
     const token = localStorage.getItem('token'); // Retrieve the token from local storage
-    const user = localStorage.getItem('user'); // Retrieve the username from local storage
+    const storedUser = localStorage.getItem('user'); // Retrieve the user object from localStorage
 
-    return this.http
-      .delete<User>(`${apiUrl}users/${user}/${movieTitle}`, {
-        headers: new HttpHeaders({
-          Authorization: `Bearer ${token}`, // Include the token in the Authorization header
-        }),
-      })
-      .pipe(catchError(this.handleError));
+    if (storedUser) {
+      const user = JSON.parse(storedUser); // Parse the user object
+      const userId = user._id; // Extract the user _id
+
+      return this.http
+        .delete<User>(`${apiUrl}users/${userId}/${movieTitle}`, {
+          headers: new HttpHeaders({
+            Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+          }),
+        })
+        .pipe(catchError(this.handleError));
+    } else {
+      // Handle the case where the user is not available in localStorage
+      throw new Error('User not found in localStorage');
+    }
   }
 
   // Get all movies call
@@ -266,10 +289,10 @@ export class ApiService {
   }
 
   // Make api call to get the director of a specific movie
-  public getDirector(movie: string): Observable<MovieDirectorResponse> {
+  public getDirector(director: string): Observable<Director> {
     const token = localStorage.getItem('token'); // Retrieve the token from local storage
     return this.http
-      .get<MovieDirectorResponse>(apiUrl + `movies/${movie}/directors`, {
+      .get<Director>(`${apiUrl}directors/${director}`, {
         headers: new HttpHeaders({
           Authorization: 'Bearer ' + token, // Include the token in the Authorization header
         }),
@@ -277,16 +300,14 @@ export class ApiService {
       .pipe(catchError(this.handleError));
   }
 
-  // Make api call to get the genre of a specific movie
-  public getGenre(movie: string): Observable<MovieGenreResponse> {
+  // Make api call to get movie genre
+  public getGenreByMovieTitle(title: string): Observable<MovieGenreResponse> {
     const token = localStorage.getItem('token');
-    return this.http
-      .get<MovieGenreResponse>(apiUrl + `movies/${movie}/genre`, {
-        headers: new HttpHeaders({
-          Authorization: 'Bearer ' + token, // Include the token in the Authorization header
-        }),
-      })
-      .pipe(catchError(this.handleError));
+    return this.http.get<MovieGenreResponse>(`${apiUrl}movies/${title}/genre`, {
+      headers: new HttpHeaders({
+        Authorization: 'Bearer ' + token,
+      }),
+    });
   }
 
   // Make an api call to get writers of a specific movie

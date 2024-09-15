@@ -1,0 +1,14 @@
+<div class="director-card-container" *ngIf="director">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ director.name }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p><strong>Birth:</strong> {{ director.dob }}</p>
+      <p *ngIf="director?.dod">
+        <strong>Death:</strong> {{ director?.dod | date }}
+      </p>
+      <p>{{ director.bio }}</p>
+    </mat-card-content>
+  </mat-card>
+</div>

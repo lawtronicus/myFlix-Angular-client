@@ -38,7 +38,7 @@ export class UserLoginFormComponent {
           duration: 2000,
         });
         localStorage.setItem('token', result.token);
-        localStorage.setItem('user', result.user.username);
+        localStorage.setItem('user', JSON.stringify(result.user));
         this.router.navigate(['movies']);
       },
       (error) => {

@@ -3,12 +3,21 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ApiService, EditUserData } from '../fetch-api-data.service';
 import { isPlatformBrowser } from '@angular/common';
 
+/**
+ * UserProfileComponent is responsible for displaying and allowing updates
+ * to the user's profile. It fetches the user's data, formats the date,
+ * and interacts with the API to save any updates.
+ */
 @Component({
   selector: 'user-profile',
   templateUrl: './user-profile.component.html',
   styleUrls: ['./user-profile.component.scss'],
 })
 export class UserProfileComponent implements OnInit {
+  /**
+   * Holds the user's data for editing purposes, such as username, date of birth, email, and password.
+   * @type {EditUserData}
+   */
   userData: EditUserData = {
     username: '',
     dob: '',
@@ -16,32 +25,65 @@ export class UserProfileComponent implements OnInit {
     password: '', // Will be used for the current password
   };
 
-  currentPassword: string = ''; // This will hold the existing password
-  userId: string = ''; // Store the user's _id separately
+  /**
+   * Stores the user's current password, used to verify the update.
+   * @type {string}
+   */
+  currentPassword: string = '';
 
+  /**
+   * Stores the user's unique ID (_id), fetched from localStorage.
+   * @type {string}
+   */
+  userId: string = '';
+
+  /**
+   * Constructor for the UserProfileComponent.
+   *
+   * @param fetchApiData - The API service used to interact with the backend
+   * @param snackBar - Material SnackBar to display notifications
+   * @param platformId - Injected platformId to determine if the app is running in the browser
+   */
   constructor(
     private fetchApiData: ApiService,
     private snackBar: MatSnackBar,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
+  /**
+   * Angular lifecycle hook that runs after the component's view has been initialized.
+   * It fetches the user's data from localStorage.
+   */
   ngOnInit(): void {
     this.getUserFromLocalStorage();
   }
 
-  // Format date to YYYY-MM-DDTHH:mm:ss.sssZ (ISO format)
+  /**
+   * Formats a date string to ISO 8601 format.
+   *
+   * @param dateString - The date string to format
+   * @returns {string} - The formatted date in ISO 8601 format
+   */
   formatDateToISOString(dateString: string): string {
     const date = new Date(dateString);
     return date.toISOString(); // Format to ISO 8601
   }
 
-  // Format date to YYYY-MM-DD
+  /**
+   * Formats a date string to YYYY-MM-DD format.
+   *
+   * @param dateString - The date string to format
+   * @returns {string} - The formatted date as YYYY-MM-DD
+   */
   formatDate(dateString: string): string {
     const date = new Date(dateString);
     return date.toISOString().substring(0, 10); // Format to YYYY-MM-DD
   }
 
-  // Fetch user data from localStorage
+  /**
+   * Fetches the user data from localStorage and stores it in `userData`.
+   * The password field is left empty initially for security reasons.
+   */
   getUserFromLocalStorage(): void {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
@@ -53,14 +95,17 @@ export class UserProfileComponent implements OnInit {
       // Only keep fields relevant for editing the user profile
       this.userData = {
         username: parsedUser.username,
-        dob: this.formatDate(parsedUser.dob), // Assume dob is already in correct format, no need to convert here
+        dob: this.formatDate(parsedUser.dob), // Format the date
         email: parsedUser.email,
-        password: '', // Leave password empty initially
+        password: '', // Password left blank initially
       };
     }
   }
 
-  // Update user profile only if the current password is provided
+  /**
+   * Updates the user's profile by calling the API if the current password is provided.
+   * The date of birth is formatted to ISO 8601 before sending it to the backend.
+   */
   updateProfile(): void {
     if (!this.currentPassword) {
       this.snackBar.open(
@@ -77,7 +122,7 @@ export class UserProfileComponent implements OnInit {
     const updatedUserData: EditUserData = {
       username: this.userData.username,
       dob: this.formatDateToISOString(this.userData.dob), // Convert dob to ISO string
-      email: this.userData.email, // Not updating email
+      email: this.userData.email, // Email is not being updated
       password: this.currentPassword, // Use current password for verification
     };
 

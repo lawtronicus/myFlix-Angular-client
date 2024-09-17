@@ -10,7 +10,11 @@ import { Observable, throwError } from 'rxjs';
 // Declaring the api url that will provide data for the client app
 const apiUrl = 'https://my-flix-application-66e35a87937e.herokuapp.com/';
 
-//Define interfaces for the user registration
+// Interfaces
+
+/**
+ * Interface representing the details of a user for registration.
+ */
 export interface UserDetails {
   username: string;
   password: string;
@@ -19,6 +23,9 @@ export interface UserDetails {
   favorite_movies: string[];
 }
 
+/**
+ * Interface representing the response after user registration.
+ */
 interface UserRegistrationResponse {
   username: string;
   password: string;
@@ -29,13 +36,17 @@ interface UserRegistrationResponse {
   __v: number; // Version key set by Mongoose
 }
 
-// Define interface for deleteuser
+/**
+ * Interface representing the response after deleting a user.
+ */
 interface DeleteUserResponse {
   message: string;
   // Add any other fields your API might return
 }
 
-//Define interface for getUser
+/**
+ * Interface representing a user fetched from the API.
+ */
 export interface User {
   _id: string; // MongoDB ID
   username: string; // Username of the user
@@ -46,7 +57,9 @@ export interface User {
   __v: number; // Version key set by Mongoose
 }
 
-//Define movie interface
+/**
+ * Interface representing a movie fetched from the API.
+ */
 export interface Movie {
   _id: string;
   title: string;
@@ -59,14 +72,18 @@ export interface Movie {
   main_actor: MainActor; // ID of the main actor
 }
 
-//Define Genre Interface
+/**
+ * Interface representing a genre associated with a movie.
+ */
 export interface Genre {
   _id: string;
   name: string;
   description: string;
 }
 
-//Define Director Interface
+/**
+ * Interface representing a director associated with a movie.
+ */
 export interface Director {
   _id: string;
   name: string;
@@ -75,13 +92,17 @@ export interface Director {
   dod?: string | null; // Date of death, optional (nullable)
 }
 
-//Define Interface for userLogin
+/**
+ * Interface representing the data required for user login.
+ */
 interface UserLoginData {
   email: string;
   password: string; // Hashed password
 }
 
-//Define Main Character Interface
+/**
+ * Interface representing the main actor in a movie.
+ */
 interface MainActor {
   _id: string;
   name: string;
@@ -89,13 +110,17 @@ interface MainActor {
   bio: string;
 }
 
-//Define interface for userLoginResponse
+/**
+ * Interface representing the response after user login.
+ */
 interface UserLoginResponse {
   user: User;
   token: string; // JWT token returned by the API
 }
 
-//Define interface for EditUserData
+/**
+ * Interface representing the data needed to edit user information.
+ */
 export interface EditUserData {
   username: string;
   password: string;
@@ -103,43 +128,63 @@ export interface EditUserData {
   dob: string; // ISO 8601 formatted date string
 }
 
-//Movie Genres Response Interface
+/**
+ * Interface representing the response when fetching a movie's genres.
+ */
 export interface MovieGenreResponse {
   title: string;
   genres: Genre[];
 }
 
-//Movie writers Response interface
+/**
+ * Interface representing the response when fetching a movie's writers.
+ */
 interface MovieWritersResponse {
   title: string;
   writers: string[]; // Array of writer names as strings
 }
 
-//Main Actor Response interface
+/**
+ * Interface representing the response when fetching a movie's main actor.
+ */
 interface MovieMainActorResponse {
   title: string;
   main_actor: MainActor;
 }
 
-//Description response interface
+/**
+ * Interface representing the response when fetching a movie's description.
+ */
 interface MovieDescriptionResponse {
   title: string;
   description: string;
 }
 
+/**
+ * Interface representing the response when fetching a movie's image URL.
+ */
 interface MovieImageUrlResponse {
   title: string;
   imageUrl: string;
 }
+
 @Injectable({
   providedIn: 'root',
 })
 export class ApiService {
-  // Inject the HttpClient module to the constructor params
-  // This will provide HttpClient to the entire class, making it available via this.http
+  /**
+   * Constructor to inject the HttpClient service.
+   *
+   * @param http - The HttpClient service used to make HTTP requests.
+   */
   constructor(private http: HttpClient) {}
 
-  // Making the api call for the user registration endpoint
+  /**
+   * Registers a new user by making an API call to the user registration endpoint.
+   *
+   * @param userDetails - The details of the user to register (username, password, email, etc.).
+   * @returns Observable<UserRegistrationResponse> - An observable containing the response from the server.
+   */
   public userRegistration(
     userDetails: UserDetails
   ): Observable<UserRegistrationResponse> {
@@ -150,7 +195,11 @@ export class ApiService {
       );
   }
 
-  // Making the api call to delete the user
+  /**
+   * Deletes the currently logged-in user by making an API call.
+   *
+   * @returns Observable<DeleteUserResponse> - An observable containing the response from the server.
+   */
   public deleteUser(): Observable<DeleteUserResponse> {
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user'); // Retrieve the username from local storage
@@ -164,7 +213,11 @@ export class ApiService {
       .pipe(catchError(this.handleError));
   }
 
-  // Making the api call to get the user details
+  /**
+   * Fetches the currently logged-in user's details by making an API call.
+   *
+   * @returns Observable<User> - An observable containing the user's details.
+   */
   public getUser(): Observable<User> {
     const token = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user'); // Retrieve the username from local storage
@@ -173,7 +226,7 @@ export class ApiService {
       const user = JSON.parse(storedUser); // Parse the string back into an object
       const userId = user._id; // Access the _id property
 
-      // Now make the HTTP request inside the `if` block using the `userId`
+      // Make the HTTP request inside the `if` block using the `userId`
       return this.http
         .get<User>(apiUrl + 'users/' + userId, {
           headers: new HttpHeaders({
@@ -188,7 +241,12 @@ export class ApiService {
     }
   }
 
-  // Making the api call for the user login endpoint
+  /**
+   * Logs in a user by making an API call to the user login endpoint.
+   *
+   * @param userData - The login credentials (email and password) of the user.
+   * @returns Observable<UserLoginResponse> - An observable containing the login response, which includes the user data and a JWT token.
+   */
   public userLogin(userData: UserLoginData): Observable<UserLoginResponse> {
     const { email, password } = userData;
 
@@ -204,7 +262,13 @@ export class ApiService {
       .pipe(catchError(this.handleError));
   }
 
-  //Edit user
+  /**
+   * Edits the current user's profile by making an API call to update the user information.
+   *
+   * @param userId - The ID of the user to be updated.
+   * @param userData - The updated user data (username, email, dob, password).
+   * @returns Observable<User> - An observable containing the updated user data.
+   */
   public editUser(userId: string, userData: EditUserData): Observable<User> {
     const token = localStorage.getItem('token');
     return this.http
@@ -217,6 +281,12 @@ export class ApiService {
       .pipe(catchError(this.handleError));
   }
 
+  /**
+   * Adds a movie to the user's list of favorite movies.
+   *
+   * @param movieTitle - The title of the movie to add to favorites.
+   * @returns Observable<User> - An observable containing the updated user data with the added favorite movie.
+   */
   public addFavoriteMovie(movieTitle: string): Observable<User> {
     const token = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user'); // Retrieve the user object from localStorage
@@ -238,7 +308,12 @@ export class ApiService {
     }
   }
 
-  // Delete movie from favorites
+  /**
+   * Removes a movie from the user's list of favorite movies.
+   *
+   * @param movieTitle - The title of the movie to remove from favorites.
+   * @returns Observable<User> - An observable containing the updated user data after the movie is removed from favorites.
+   */
   public deleteFavoriteMovie(movieTitle: string): Observable<User> {
     const token = localStorage.getItem('token'); // Retrieve the token from local storage
     const storedUser = localStorage.getItem('user'); // Retrieve the user object from localStorage
@@ -260,7 +335,11 @@ export class ApiService {
     }
   }
 
-  // Get all movies call
+  /**
+   * Fetches all movies from the API.
+   *
+   * @returns Observable<Movie[]> - An observable containing a list of movies.
+   */
   public getMovies(): Observable<Movie[]> {
     const token = localStorage.getItem('token'); // Retrieve the token from local storage
     return this.http
@@ -272,7 +351,12 @@ export class ApiService {
       .pipe(catchError(this.handleError));
   }
 
-  // Make api call to get a movie by title
+  /**
+   * Fetches a specific movie by its title.
+   *
+   * @param title - The title of the movie to fetch.
+   * @returns Observable<Movie> - An observable containing the movie details.
+   */
   public getMovieByTitle(title: string): Observable<Movie> {
     const token = localStorage.getItem('token'); // Retrieve the token from local storage
     return this.http
@@ -284,100 +368,148 @@ export class ApiService {
       .pipe(catchError(this.handleError));
   }
 
-  // Make api call to get the director of a specific movie
+  /**
+   * Fetches the director's information for a specific movie.
+   *
+   * @param director - The name of the director to fetch.
+   * @returns Observable<Director> - An observable containing the director's details.
+   */
   public getDirector(director: string): Observable<Director> {
-    const token = localStorage.getItem('token'); // Retrieve the token from local storage
+    const token = localStorage.getItem('token');
     return this.http
       .get<Director>(`${apiUrl}directors/${director}`, {
         headers: new HttpHeaders({
-          Authorization: 'Bearer ' + token, // Include the token in the Authorization header
+          Authorization: 'Bearer ' + token,
         }),
       })
       .pipe(catchError(this.handleError));
   }
 
-  // Make api call to get movie genre
+  /**
+   * Fetches the genre of a specific movie by its title.
+   *
+   * @param title - The title of the movie.
+   * @returns Observable<MovieGenreResponse> - An observable containing the movie's genre.
+   */
   public getGenreByMovieTitle(title: string): Observable<MovieGenreResponse> {
     const token = localStorage.getItem('token');
-    return this.http.get<MovieGenreResponse>(`${apiUrl}movies/${title}/genre`, {
-      headers: new HttpHeaders({
-        Authorization: 'Bearer ' + token,
-      }),
-    });
+    return this.http
+      .get<MovieGenreResponse>(`${apiUrl}movies/${title}/genre`, {
+        headers: new HttpHeaders({
+          Authorization: 'Bearer ' + token,
+        }),
+      })
+      .pipe(catchError(this.handleError));
   }
 
-  // Make an api call to get writers of a specific movie
+  /**
+   * Fetches the list of writers for a specific movie.
+   *
+   * @param movie - The title of the movie.
+   * @returns Observable<MovieWritersResponse> - An observable containing the movie's writers.
+   */
   public getWriters(movie: string): Observable<MovieWritersResponse> {
     const token = localStorage.getItem('token');
     return this.http
-      .get<MovieWritersResponse>(apiUrl + `movies/${movie}/writers`, {
+      .get<MovieWritersResponse>(`${apiUrl}movies/${movie}/writers`, {
         headers: new HttpHeaders({
-          Authorization: 'Bearer ' + token, // Include the token in the Authorization header
+          Authorization: 'Bearer ' + token,
         }),
       })
       .pipe(catchError(this.handleError));
   }
 
-  // Make an api call to get the main_actor of a specific movie
+  /**
+   * Fetches the main actor of a specific movie.
+   *
+   * @param movie - The title of the movie.
+   * @returns Observable<MovieMainActorResponse> - An observable containing the main actor of the movie.
+   */
   public getMainActor(movie: string): Observable<MovieMainActorResponse> {
     const token = localStorage.getItem('token');
     return this.http
-      .get<MovieMainActorResponse>(apiUrl + `movies/${movie}/main-actors`, {
+      .get<MovieMainActorResponse>(`${apiUrl}movies/${movie}/main-actors`, {
         headers: new HttpHeaders({
-          Authorization: 'Bearer ' + token, // Include the token in the Authorization header
+          Authorization: 'Bearer ' + token,
         }),
       })
       .pipe(catchError(this.handleError));
   }
 
-  // Make an api call to get the description of a movie
+  /**
+   * Fetches the description of a specific movie.
+   *
+   * @param movie - The title of the movie.
+   * @returns Observable<MovieDescriptionResponse> - An observable containing the movie's description.
+   */
   public getDescription(movie: string): Observable<MovieDescriptionResponse> {
     const token = localStorage.getItem('token');
     return this.http
-      .get<MovieDescriptionResponse>(apiUrl + `movies/${movie}/description`, {
+      .get<MovieDescriptionResponse>(`${apiUrl}movies/${movie}/description`, {
         headers: new HttpHeaders({
-          Authorization: 'Bearer ' + token, // Include the token in the Authorization header
+          Authorization: 'Bearer ' + token,
         }),
       })
       .pipe(catchError(this.handleError));
   }
 
-  // Make an api call to get a movie's image
+  /**
+   * Fetches the image URL of a specific movie.
+   *
+   * @param movie - The title of the movie.
+   * @returns Observable<MovieImageUrlResponse> - An observable containing the movie's image URL.
+   */
   public getImage(movie: string): Observable<MovieImageUrlResponse> {
     const token = localStorage.getItem('token');
     return this.http
-      .get<MovieImageUrlResponse>(apiUrl + `movies/${movie}/image`, {
+      .get<MovieImageUrlResponse>(`${apiUrl}movies/${movie}/image`, {
         headers: new HttpHeaders({
-          Authorization: 'Bearer ' + token, // Include the token in the Authorization header
+          Authorization: 'Bearer ' + token,
         }),
       })
       .pipe(catchError(this.handleError));
   }
 
-  // Make an api call to get a director's info
+  /**
+   * Fetches the information about a specific director.
+   *
+   * @param director - The name of the director.
+   * @returns Observable<Director> - An observable containing the director's information.
+   */
   public getDirectorInfo(director: string): Observable<Director> {
     const token = localStorage.getItem('token');
     return this.http
-      .get<Director>(apiUrl + `directors/${director}`, {
+      .get<Director>(`${apiUrl}directors/${director}`, {
         headers: new HttpHeaders({
-          Authorization: 'Bearer ' + token, // Include the token in the Authorization header
+          Authorization: 'Bearer ' + token,
         }),
       })
       .pipe(catchError(this.handleError));
   }
 
-  // Make an api call to get a genre's info
+  /**
+   * Fetches the information about a specific genre.
+   *
+   * @param genre - The name of the genre.
+   * @returns Observable<Genre> - An observable containing the genre's information.
+   */
   public getGenreInfo(genre: string): Observable<Genre> {
     const token = localStorage.getItem('token');
     return this.http
-      .get<Genre>(apiUrl + `genre/${genre}`, {
+      .get<Genre>(`${apiUrl}genre/${genre}`, {
         headers: new HttpHeaders({
-          Authorization: 'Bearer ' + token, // Include the token in the Authorization header
+          Authorization: 'Bearer ' + token,
         }),
       })
       .pipe(catchError(this.handleError));
   }
 
+  /**
+   * Handles any errors that occur during HTTP requests.
+   *
+   * @param error - The HTTP error response.
+   * @returns Observable<never> - An observable that throws an error message.
+   */
   private handleError(error: HttpErrorResponse): Observable<never> {
     if (error.error instanceof ErrorEvent) {
       console.error('Some error occurred:', error.error.message);

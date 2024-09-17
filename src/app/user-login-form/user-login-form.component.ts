@@ -1,48 +1,69 @@
 import { Router } from '@angular/router';
-
-// src/app/user-login-form/user-login-form.component.ts
 import { Component, OnInit, Input } from '@angular/core';
-
-// You'll use this import to close the dialog on success
 import { MatDialogRef } from '@angular/material/dialog';
-
-// This import brings in the API calls we created in 6.2
 import { ApiService } from '../fetch-api-data.service';
-
-// This import is used to display notifications back to the user
 import { MatSnackBar } from '@angular/material/snack-bar';
+
+/**
+ * The UserLoginFormComponent is responsible for handling the user login process.
+ * It interacts with the API, handles user input, and displays notifications to the user.
+ */
 @Component({
   selector: 'app-user-login-form',
   templateUrl: './user-login-form.component.html',
   styleUrl: './user-login-form.component.scss',
 })
-export class UserLoginFormComponent {
+export class UserLoginFormComponent implements OnInit {
+  /**
+   * Holds the user's login credentials.
+   * @type {{ email: string, password: string }}
+   */
   @Input() userData = { email: '', password: '' };
 
+  /**
+   * Constructor for UserLoginFormComponent.
+   *
+   * @param fetchApiData - API service to make the login request
+   * @param dialogRef - Reference to the dialog, allowing it to be closed upon success
+   * @param snackBar - Material SnackBar to show notifications
+   * @param router - Router to navigate the user upon successful login
+   */
   constructor(
     public fetchApiData: ApiService,
     public dialogRef: MatDialogRef<UserLoginFormComponent>,
     public snackBar: MatSnackBar,
-    private router: Router // Inject the Router here
+    private router: Router
   ) {}
 
+  /**
+   * Angular lifecycle hook that runs after the component's view has been initialized.
+   */
   ngOnInit(): void {}
 
-  // This is the function responsible for sending the form inputs to the backend
+  /**
+   * Sends the user's login data to the API.
+   * If the login is successful, it stores the token and user information in localStorage,
+   * shows a success message, and navigates the user to the "movies" page.
+   *
+   * If the login fails, it shows an error message.
+   */
   loginUser(): void {
     this.fetchApiData.userLogin(this.userData).subscribe(
       (result) => {
-        // Logic for a successful login goes here! (To be implemented)
-        this.dialogRef.close(); // This will close the modal on success!
+        // Close the dialog on success
+        this.dialogRef.close();
+        // Show welcome message
         this.snackBar.open(`Welcome, ${result.user.username}!`, 'OK', {
           duration: 2000,
         });
+        // Store the token and user data in localStorage
         localStorage.setItem('token', result.token);
         localStorage.setItem('user', JSON.stringify(result.user));
+        // Navigate to the movies page
         this.router.navigate(['movies']);
       },
       (error) => {
-        // Display an error message
+        // Show error message on failure
         this.snackBar.open('Login failed. Please try again.', 'OK', {
           duration: 2000,
         });
